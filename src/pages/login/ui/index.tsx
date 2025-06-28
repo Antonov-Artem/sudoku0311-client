@@ -1,8 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
-import confetti from "canvas-confetti";
 import { login } from "entities/user";
-import { AnimatePresence, motion } from "motion/react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NavLink, useNavigate } from "react-router";
 
 export const LoginPage = () => {
