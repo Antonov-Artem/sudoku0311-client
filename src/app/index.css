@@ -1,0 +1,9 @@
+@import "tailwindcss";
+
+body {
+    font-size: var(--text-sm);
+}
+
+.fill {
+    font-variation-settings: "FILL" 1;
+}
