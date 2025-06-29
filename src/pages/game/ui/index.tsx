@@ -413,7 +413,7 @@ export const GamePage = () => {
 
     return (
         <>
-            <div className="grid h-screen grid-cols-1 grid-rows-[56px_auto_auto_auto_1fr_auto] flex-col justify-between gap-2 p-3">
+            <div className="grid h-svh grid-cols-1 grid-rows-[56px_auto_auto_auto_1fr_auto] flex-col justify-between gap-2 p-3">
                 <header className="flex items-center justify-between">
                     <Link to="/">
                         <div className="flex size-10 items-center justify-center rounded-full transition active:bg-neutral-200">
