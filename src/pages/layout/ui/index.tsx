@@ -16,7 +16,7 @@ export const Layout = ({ bottomBar = false }: LayoutProps) => {
 
     return (
         <>
-            <main className="h-screen overflow-hidden">
+            <main className="overflow-hidden">
                 <AnimatePresence mode="wait">
                     <motion.div
                         key={location.pathname}
