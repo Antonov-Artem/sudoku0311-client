@@ -413,7 +413,7 @@ export const GamePage = () => {
 
     return (
         <>
-            <div className="grid h-svh grid-cols-1 grid-rows-[56px_auto_auto_auto_1fr_auto] flex-col justify-between gap-2 p-3">
+            <div className="flex h-screen min-h-0 flex-col gap-2 p-3">
                 <header className="flex items-center justify-between">
                     <Link to="/">
                         <div className="flex size-10 items-center justify-center rounded-full transition active:bg-neutral-200">
@@ -549,11 +549,10 @@ export const GamePage = () => {
                         </motion.div>
                     </div>
                 </div>
-                <div className="flex items-center justify-center">
+                <div className="min-h-0 flex-1 py-4">
                     <img
                         src="/images/armin.png"
-                        alt="Armin Arlert chibi image"
-                        className="w-1/3 transition active:scale-95"
+                        className="h-full w-full object-contain transition active:scale-[0.98]"
                     />
                 </div>
                 <div className="grid grid-cols-9 gap-1">
