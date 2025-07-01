@@ -1,9 +1,10 @@
+import { API_BASE_URL } from "shared/api";
 import { authFetch } from "shared/lib";
 
 import type { UserTask } from "../model/types";
 
 export const getUserTasks = async (): Promise<UserTask[]> => {
-    const response = await authFetch("http://localhost:3000/task", {
+    const response = await authFetch(`${API_BASE_URL}/task`, {
         method: "GET",
         credentials: "include",
     });
@@ -22,7 +23,7 @@ export const increaseUserTaskProgress = async ({
     type: string;
     progress?: number;
 }) => {
-    const response = await authFetch("http://localhost:3000/task/set", {
+    const response = await authFetch(`${API_BASE_URL}/task/set`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -39,7 +40,7 @@ export const increaseUserTaskProgress = async ({
 };
 
 export const claimUserTaskActivityPoints = async (userTaskId: string) => {
-    const response = await authFetch(`http://localhost:3000/task/claim`, {
+    const response = await authFetch(`${API_BASE_URL}/task/claim`, {
         method: "POST",
         credentials: "include",
         headers: {

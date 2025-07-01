@@ -141,16 +141,19 @@ export const GamePage = () => {
     const initialNumbersLeft = (board: SudokuPuzzle | undefined) => {
         if (!board) return;
 
-        setNumbersLeft(prevNumbersLeft => {
-            const newNumbersLeft = [...prevNumbersLeft];
-            for (let row = 0; row < 9; row++) {
-                for (let col = 0; col < 9; col++) {
-                    if (board[row][col] === 0) continue;
-                    newNumbersLeft[board[row][col] - 1]--;
+        const newNumbersLeft = new Array(9).fill(9);
+        for (let row = 0; row < 9; row++) {
+            for (let col = 0; col < 9; col++) {
+                const val = board[row][col];
+                if (val !== 0) {
+                    newNumbersLeft[val - 1] = Math.max(
+                        0,
+                        newNumbersLeft[val - 1] - 1,
+                    );
                 }
             }
-            return newNumbersLeft;
-        });
+        }
+        setNumbersLeft(newNumbersLeft);
     };
 
     const onCellClicked = (row: number, col: number) => {
@@ -225,9 +228,10 @@ export const GamePage = () => {
                 i + 1 === selectedNum &&
                 !isInInitialGrid(row, col) &&
                 i + 1 === solvedBoard[row][col]
-                    ? value - 1
+                    ? Math.max(0, value - 1)
                     : value,
             );
+
             setNumbersLeft(newNumbersLeft);
         }
     };
@@ -309,9 +313,10 @@ export const GamePage = () => {
                 i + 1 === num &&
                 !isInInitialGrid(row, col) &&
                 i + 1 === solvedBoard[selectedCell[0]][selectedCell[1]]
-                    ? value - 1
+                    ? Math.max(0, value - 1)
                     : value,
             );
+
             setNumbersLeft(newNumbersLeft);
         }
 

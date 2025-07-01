@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "shared/api";
 import { authFetch } from "shared/lib";
 
 import type { UserActivityReward } from "../model/types";
@@ -5,7 +6,7 @@ import type { UserActivityReward } from "../model/types";
 export const getUserActivityReward = async (): Promise<
     (UserActivityReward | null)[]
 > => {
-    const response = await authFetch("http://localhost:3000/activity-reward", {
+    const response = await authFetch(`${API_BASE_URL}/activity-reward`, {
         method: "GET",
         credentials: "include",
     });
@@ -18,7 +19,7 @@ export const getUserActivityReward = async (): Promise<
 };
 
 export const claimUserActivityReward = async (activityPoints: number) => {
-    const response = await authFetch(`http://localhost:3000/activity-reward`, {
+    const response = await authFetch(`${API_BASE_URL}/activity-reward`, {
         method: "POST",
         credentials: "include",
         headers: {

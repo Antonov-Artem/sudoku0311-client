@@ -1,7 +1,9 @@
+import { API_BASE_URL } from "shared/api";
+
 import type { ShopItem } from "../model/types";
 
 export const getShopItems = async (): Promise<ShopItem[]> => {
-    const response = await fetch("http://localhost:3000/shop-item", {
+    const response = await fetch(`${API_BASE_URL}/shop-item`, {
         method: "GET",
     });
 

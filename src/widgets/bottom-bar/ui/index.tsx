@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { clsx } from "clsx/lite";
+import { getUserActivityReward } from "entities/activity-reward";
 import { getBalance } from "entities/balance";
 import { getUserTasks } from "entities/task";
 import { motion } from "motion/react";
@@ -18,6 +19,10 @@ export const BottomBar = ({ items }: BottomBarProps) => {
         queryKey: ["user-tasks"],
         queryFn: getUserTasks,
     });
+    const { data: userActivityRewards } = useQuery({
+        queryKey: ["user-activity-reward"],
+        queryFn: getUserActivityReward,
+    });
 
     const [tasksMissed, setTasksMissed] = useState(false);
     const scrollDirection = useScrollDirection();
@@ -26,11 +31,13 @@ export const BottomBar = ({ items }: BottomBarProps) => {
     const show = scrollDirection === "up" || atBottom;
 
     useEffect(() => {
-        if (!userTasks) {
+        if (!userTasks || !userActivityRewards) {
             setTasksMissed(false);
             return;
         }
-        const hasMissed = userTasks.some(t => t.isCompleted && !t.isClaimed);
+        const hasMissed =
+            userTasks.some(t => t.isCompleted && !t.isClaimed) &&
+            userActivityRewards.some(r => !r?.claimed);
         setTasksMissed(hasMissed);
     }, [userTasks]);
 

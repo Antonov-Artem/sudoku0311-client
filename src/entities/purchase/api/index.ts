@@ -1,3 +1,4 @@
+import { API_BASE_URL } from "shared/api";
 import { authFetch } from "shared/lib";
 
 export const makePurchase = async ({
@@ -7,7 +8,7 @@ export const makePurchase = async ({
     shopItemId: string;
     quantity: number;
 }) => {
-    const response = await authFetch(`http://localhost:3000/purchase`, {
+    const response = await authFetch(`${API_BASE_URL}/purchase`, {
         method: "POST",
         credentials: "include",
         headers: {

@@ -1,3 +1,5 @@
+import { API_BASE_URL } from "shared/api";
+
 import type { User } from "../model/types";
 
 export const register = async (
@@ -5,7 +7,7 @@ export const register = async (
     password: string,
     name: string,
 ) => {
-    const response = await fetch("http://localhost:3000/auth/register", {
+    const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -21,7 +23,7 @@ export const register = async (
 };
 
 export const login = async (email: string, password: string): Promise<User> => {
-    const response = await fetch("http://localhost:3000/auth/login", {
+    const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",
@@ -42,7 +44,7 @@ export const login = async (email: string, password: string): Promise<User> => {
 };
 
 export const logout = async (userId?: string) => {
-    const response = await fetch("http://localhost:3000/auth/logout", {
+    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
         method: "POST",
         headers: {
             "Content-Type": "application/json",

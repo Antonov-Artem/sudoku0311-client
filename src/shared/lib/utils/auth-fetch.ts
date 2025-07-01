@@ -1,8 +1,10 @@
+import { API_BASE_URL } from "shared/api";
+
 let isRefreshing = false;
 let refreshPromise: Promise<void> | null = null;
 
 async function refreshToken(userId: string) {
-    const response = await fetch("http://localhost:3000/auth/refresh", {
+    const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: "POST",
         credentials: "include",
         headers: {
@@ -41,6 +43,7 @@ export async function authFetch(
             response = await fetch(input, { ...init, credentials: "include" });
         } catch (e) {
             window.location.href = "/login";
+            console.log(e);
             throw e;
         }
     }
