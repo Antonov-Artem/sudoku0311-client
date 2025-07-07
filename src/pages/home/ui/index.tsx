@@ -94,7 +94,7 @@ export const HomePage = () => {
                                                 <li
                                                     key={d.value}
                                                     className={clsx(
-                                                        "cursor-pointer rounded-full py-3 text-center font-medium transition",
+                                                        "cursor-pointer rounded-full py-2.5 text-center font-medium transition",
                                                         difficulty ===
                                                             d.value &&
                                                             "bg-green-600 text-white",
