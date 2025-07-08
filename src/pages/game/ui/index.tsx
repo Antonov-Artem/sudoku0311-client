@@ -21,11 +21,17 @@ const difficulties = {
     hard: "Сложный",
 } as const;
 
+const energyCost = {
+    easy: 10,
+    medium: 25,
+    hard: 50,
+} as const;
+
 export const GamePage = () => {
     const navigate = useNavigate();
-    const difficulty = (useSearchParams()[0].get("difficulty") ||
-        "easy") as SudokuDifficulty;
-
+    const difficulty = useSearchParams()[0].get(
+        "difficulty",
+    ) as SudokuDifficulty;
     const { data, isPending, refetch } = useQuery({
         queryKey: ["sudoku-puzzle"],
         queryFn: () => getSudoku(difficulty),
@@ -80,23 +86,23 @@ export const GamePage = () => {
             setWon(false);
         }
 
-        spentEnergyMutation.mutate(50);
+        spentEnergyMutation.mutate(energyCost[difficulty]);
         increaseUserTaskProgressMutation.mutate({
             type: "energy_spent",
-            progress: 50,
+            progress: energyCost[difficulty],
         });
     };
 
     const finish = () => {
         setIsRunning(false);
         setWon(true);
-        spentEnergyMutation.mutate(50);
+        spentEnergyMutation.mutate(energyCost[difficulty]);
         increaseUserTaskProgressMutation.mutate({
             type: "level_completion",
         });
         increaseUserTaskProgressMutation.mutate({
             type: "energy_spent",
-            progress: 50,
+            progress: energyCost[difficulty],
         });
     };
 
@@ -120,10 +126,10 @@ export const GamePage = () => {
         if (lives <= 1) {
             setLost(true);
             setIsRunning(false);
-            spentEnergyMutation.mutate(50);
+            spentEnergyMutation.mutate(energyCost[difficulty]);
             increaseUserTaskProgressMutation.mutate({
                 type: "energy_spent",
-                progress: 50,
+                progress: energyCost[difficulty],
             });
         }
     };

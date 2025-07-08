@@ -25,6 +25,7 @@ export const BottomBar = ({ items }: BottomBarProps) => {
     });
 
     const [tasksMissed, setTasksMissed] = useState(false);
+    const [canPlay, setCanPlay] = useState(false);
     const scrollDirection = useScrollDirection();
     const atBottom = useScrollAtBottom();
 
@@ -41,6 +42,10 @@ export const BottomBar = ({ items }: BottomBarProps) => {
         setTasksMissed(hasMissed);
     }, [userTasks]);
 
+    useEffect(() => {
+        setCanPlay(balance !== undefined && balance.energy >= 10);
+    }, [balance]);
+
     return (
         <motion.nav
             animate={{ y: show ? 0 : 100, opacity: show ? 1 : 0 }}
@@ -50,11 +55,7 @@ export const BottomBar = ({ items }: BottomBarProps) => {
             {items.map((menuItem, i) => (
                 <NavLink
                     key={menuItem.key}
-                    to={
-                        balance && balance.energy === 0 && i === 2
-                            ? "/"
-                            : menuItem.path
-                    }
+                    to={!canPlay && i === 2 ? "/" : menuItem.path}
                     className={({ isActive }) =>
                         clsx(
                             "relative flex size-10 items-center justify-center rounded-full transition",
@@ -63,10 +64,7 @@ export const BottomBar = ({ items }: BottomBarProps) => {
                                 ? "bg-green-600 text-white"
                                 : "active:bg-neutral-200",
                             (isActive || i === 2) && "fill",
-                            balance &&
-                                balance.energy === 0 &&
-                                i === 2 &&
-                                "opacity-70",
+                            !canPlay && i === 2 && "opacity-70",
                         )
                     }
                 >

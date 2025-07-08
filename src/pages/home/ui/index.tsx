@@ -2,16 +2,23 @@ import { useQuery } from "@tanstack/react-query";
 import { clsx } from "clsx/lite";
 import { getBalance } from "entities/balance";
 import { getProfile } from "entities/profile";
+import type { SudokuDifficulty } from "entities/sudoku-puzzle";
 import { AnimatePresence, motion } from "framer-motion";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router";
 import { Header } from "widgets/header";
 
-const difficulties = [
+const difficulties: { label: string; value: SudokuDifficulty }[] = [
     { label: "Легкий", value: "easy" },
     { label: "Средний", value: "medium" },
     { label: "Сложный", value: "hard" },
 ];
+
+const energyCost: Record<SudokuDifficulty, number> = {
+    easy: 10,
+    medium: 25,
+    hard: 50,
+} as const;
 
 export const HomePage = () => {
     const { data: balance } = useQuery({
@@ -22,10 +29,21 @@ export const HomePage = () => {
         queryKey: ["profile-key"],
         queryFn: getProfile,
     });
-    const [difficulty, setDifficulty] = useState(difficulties[0].value);
+    const [difficulty, setDifficulty] = useState<SudokuDifficulty>(
+        difficulties[0].value as SudokuDifficulty,
+    );
     const [dropdownOpen, setDropdownOpen] = useState(false);
+    const [canPlay, setCanPlay] = useState(false);
 
     const selected = difficulties.find(d => d.value === difficulty);
+
+    useEffect(() => {
+        setCanPlay(
+            balance !== undefined &&
+                balance.energy > 0 &&
+                energyCost[difficulty] <= balance.energy,
+        );
+    }, [balance, difficulty]);
 
     return (
         <>
@@ -115,12 +133,10 @@ export const HomePage = () => {
                 </div>
                 <Link to={`/game?difficulty=${difficulty}`} className="w-full">
                     <button
-                        disabled={balance?.energy === 0}
+                        disabled={!canPlay}
                         className={clsx(
                             "h-12 w-full rounded-full bg-green-600 px-4 leading-0 font-medium text-white transition active:border-none disabled:opacity-70",
-                            balance &&
-                                balance.energy > 0 &&
-                                "active:bg-green-700",
+                            canPlay && "active:bg-green-700",
                         )}
                     >
                         Играть
