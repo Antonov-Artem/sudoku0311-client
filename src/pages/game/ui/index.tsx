@@ -7,7 +7,7 @@ import {
     updateGameSession,
 } from "entities/game-session";
 import { increaseUserTaskProgress } from "entities/task";
-import { circIn, motion } from "motion/react";
+import { motion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router";
 import { Modal } from "shared/ui";

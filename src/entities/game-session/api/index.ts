@@ -1,8 +1,7 @@
-import type { SudokuDifficulty } from "entities/sudoku-puzzle";
 import { API_BASE_URL } from "shared/api";
 import { authFetch } from "shared/lib";
 
-import type { GameSession } from "../model/types";
+import type { GameSession, SudokuDifficulty } from "../model/types";
 
 export const getGameSessionByUserId = async (
     userId: string,
