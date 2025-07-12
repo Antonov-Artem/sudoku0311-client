@@ -1,6 +1,5 @@
 import { API_BASE_URL } from "shared/api";
-
-import type { User } from "../model/types";
+import { authFetch } from "shared/lib";
 
 export const register = async (
     email: string,
@@ -22,13 +21,10 @@ export const register = async (
     return response.json();
 };
 
-export const login = async (email: string, password: string): Promise<User> => {
+export async function login(email: string, password: string) {
     const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
     });
 
@@ -36,26 +32,19 @@ export const login = async (email: string, password: string): Promise<User> => {
         throw new Error("Login failed");
     }
 
-    const res = await (response.json() as Promise<User>);
+    const data = await response.json();
 
-    localStorage.setItem("userId", res.userId);
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
+    localStorage.setItem("userId", data.userId);
 
-    return res;
-};
+    return data;
+}
 
-export const logout = async (userId?: string) => {
-    const response = await fetch(`${API_BASE_URL}/auth/logout`, {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({ userId }),
-    });
-
-    if (!response.ok) {
-        throw new Error("Logout failed");
-    }
-
+export async function logout() {
+    await authFetch(`${API_BASE_URL}/auth/logout`, { method: "POST" });
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
     localStorage.removeItem("userId");
-};
+    window.location.href = "/login";
+}

@@ -1,51 +1,72 @@
 import { API_BASE_URL } from "shared/api";
 
-let isRefreshing = false;
-let refreshPromise: Promise<void> | null = null;
+async function tryRefreshToken(): Promise<boolean> {
+    const refreshToken = localStorage.getItem("refreshToken");
+    const userId = localStorage.getItem("userId");
 
-async function refreshToken(userId: string) {
+    if (!refreshToken || !userId) {
+        return false;
+    }
+
     const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
         method: "POST",
-        credentials: "include",
-        headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ userId }),
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken, userId }),
     });
 
     if (!response.ok) {
-        throw new Error("Refresh failed");
+        return false;
     }
+
+    const data = await response.json();
+
+    localStorage.setItem("accessToken", data.accessToken);
+    localStorage.setItem("refreshToken", data.refreshToken);
+
+    return true;
 }
 
 export async function authFetch(
     input: RequestInfo,
-    init?: RequestInit,
+    init: RequestInit = {},
 ): Promise<Response> {
-    let response = await fetch(input, { ...init, credentials: "include" });
+    const accessToken = localStorage.getItem("accessToken");
+
+    const authInit: RequestInit = {
+        ...init,
+        headers: {
+            ...(init.headers || {}),
+            Authorization: `Bearer ${accessToken}`,
+            "Content-Type": "application/json",
+        },
+    };
+
+    let response = await fetch(input, authInit);
 
     if (response.status === 401 || response.status === 403) {
-        const userId = localStorage.getItem("userId");
+        console.log("Access token expired, trying refresh...");
 
-        if (!userId) {
+        const success = await tryRefreshToken();
+
+        if (!success) {
+            console.log("Refresh failed, redirecting to login.");
+            localStorage.removeItem("accessToken");
+            localStorage.removeItem("refreshToken");
+            localStorage.removeItem("userId");
             window.location.href = "/login";
-            throw new Error("No userId found");
+            throw new Error("Could not refresh token");
         }
 
-        if (!isRefreshing) {
-            isRefreshing = true;
-            refreshPromise = refreshToken(userId).finally(() => {
-                isRefreshing = false;
-            });
-        }
-        try {
-            await refreshPromise;
-            response = await fetch(input, { ...init, credentials: "include" });
-        } catch (e) {
-            window.location.href = "/login";
-            console.log(e);
-            throw e;
-        }
+        const newAccessToken = localStorage.getItem("accessToken");
+
+        response = await fetch(input, {
+            ...authInit,
+            headers: {
+                ...(init.headers || {}),
+                Authorization: `Bearer ${newAccessToken}`,
+                "Content-Type": "application/json",
+            },
+        });
     }
 
     return response;

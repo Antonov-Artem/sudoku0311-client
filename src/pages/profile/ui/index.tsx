@@ -31,7 +31,7 @@ export const ProfilePage = () => {
                         <button
                             className="flex size-10 items-center justify-center rounded-full border-red-400 bg-red-200 transition active:bg-red-300"
                             onClick={() => {
-                                logoutMutation.mutate("");
+                                logoutMutation.mutate();
                             }}
                         >
                             <span className="material-symbols-outlined text-xl! text-red-800">
