@@ -155,7 +155,7 @@ export const HomePage = () => {
                                         gameSession?.id || "",
                                     );
                                     await createGameSessionMutate({
-                                        difficulty: d.value,
+                                        difficulty: d.label,
                                         userId:
                                             localStorage.getItem("userId") ||
                                             "",

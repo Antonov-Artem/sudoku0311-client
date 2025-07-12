@@ -33,7 +33,7 @@ export const createGameSession = async ({
     difficulty,
 }: {
     userId: string;
-    difficulty: SudokuDifficulty;
+    difficulty: string;
 }): Promise<GameSession> => {
     const response = await authFetch(`${API_BASE_URL}/game-session/create`, {
         method: "POST",
