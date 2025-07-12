@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "shared/api";
 import { authFetch } from "shared/lib";
 
-import type { GameSession, SudokuDifficulty } from "../model/types";
+import type { GameSession } from "../model/types";
 
 export const getGameSessionByUserId = async (
     userId: string,
