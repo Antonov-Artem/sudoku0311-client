@@ -1,11 +1,17 @@
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { clsx } from "clsx/lite";
-import { getBalance } from "entities/balance";
+import { getBalance, spentEnergy } from "entities/balance";
+import {
+    type GameSession,
+    type SudokuDifficulty,
+    createGameSession,
+    deleteGameSession,
+    getGameSessionByUserId,
+} from "entities/game-session";
 import { getProfile } from "entities/profile";
-import type { SudokuDifficulty } from "entities/sudoku-puzzle";
-import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router";
+import { BottomSheet } from "shared/ui";
 import { Header } from "widgets/header";
 
 const difficulties: { label: string; value: SudokuDifficulty }[] = [
@@ -29,13 +35,53 @@ export const HomePage = () => {
         queryKey: ["profile-key"],
         queryFn: getProfile,
     });
-    const [difficulty, setDifficulty] = useState<SudokuDifficulty>(
+    const [difficulty, _] = useState<SudokuDifficulty>(
         difficulties[0].value as SudokuDifficulty,
     );
-    const [dropdownOpen, setDropdownOpen] = useState(false);
     const [canPlay, setCanPlay] = useState(false);
+    const [gameSession, setGameSession] = useState<GameSession | null>(null);
+    const [open, setOpen] = useState(false);
 
-    const selected = difficulties.find(d => d.value === difficulty);
+    const { mutateAsync: getGameSessionMutate } = useMutation({
+        mutationKey: ["get-game-session"],
+        mutationFn: getGameSessionByUserId,
+        onSuccess: data => {
+            if (!data || data.length === 0) {
+                setGameSession(null);
+                return;
+            }
+            setGameSession(data[0]);
+            console.log(data[0]);
+        },
+    });
+
+    const { mutateAsync: createGameSessionMutate } = useMutation({
+        mutationKey: ["game-session"],
+        mutationFn: createGameSession,
+        onSuccess: data => {
+            setGameSession(data);
+            console.log(data);
+        },
+    });
+
+    const { mutate: deleteGameSessionMutate } = useMutation({
+        mutationKey: ["delete-game-session"],
+        mutationFn: deleteGameSession,
+    });
+
+    const spentEnergyMutation = useMutation({
+        mutationFn: spentEnergy,
+        mutationKey: ["spent-energy"],
+    });
+
+    const handleGetGameSessionByUserId = async () => {
+        if (!profile) return;
+        await getGameSessionMutate(profile.userId);
+    };
+
+    useEffect(() => {
+        handleGetGameSessionByUserId();
+    }, [profile]);
 
     useEffect(() => {
         setCanPlay(
@@ -54,95 +100,79 @@ export const HomePage = () => {
                     </div>
                 }
             />
-            <div className="flex h-screen flex-col gap-2 px-4 py-20">
-                <div className="flex h-full flex-col gap-4">
-                    <div className="flex flex-col gap-2">
-                        <h1 className="text-3xl font-bold">
-                            Привет, {profile?.userName}
-                        </h1>
-                        <p className="text-neutral-600">
-                            Выбери режим игры, чтобы начать
-                        </p>
-                    </div>
-                    <div className="flex h-full w-full flex-col items-center justify-between rounded-xl bg-neutral-500 bg-linear-to-t from-black/30 to-transparent p-4">
-                        <h1 className="text-2xl font-bold text-white">
-                            Классический судоку
-                        </h1>
-                        <div className="flex items-center gap-4">
-                            <p className="font-medium text-white">
-                                Уровень сложности:
-                            </p>
+            <div className="flex h-screen w-full flex-col items-center justify-center gap-2 px-4 py-20">
+                {gameSession ? (
+                    <>
+                        <Link to="/game" className="w-2/3">
                             <button
-                                className="relative z-10 flex h-8 w-28 items-center justify-center gap-1 rounded-full bg-white leading-none font-medium transition active:bg-neutral-200"
-                                onClick={() => setDropdownOpen(v => !v)}
-                                type="button"
+                                className={clsx(
+                                    "h-12 w-full rounded-full bg-green-600 px-4 text-base leading-0 font-medium text-white transition active:border-none active:bg-green-700 disabled:opacity-70",
+                                )}
                             >
-                                {selected?.label}
-                                <span
-                                    className={clsx(
-                                        "material-symbols-outlined mt-0.5 text-lg! transition duration-300",
-                                        dropdownOpen
-                                            ? "rotate-180"
-                                            : "rotate-0",
-                                    )}
-                                >
-                                    keyboard_arrow_down
-                                </span>
-                                <AnimatePresence>
-                                    {dropdownOpen && (
-                                        <motion.ul
-                                            initial={{
-                                                opacity: 0,
-                                                y: -10,
-                                            }}
-                                            animate={{
-                                                opacity: 1,
-                                                y: 0,
-                                            }}
-                                            exit={{
-                                                opacity: 0,
-                                                y: -10,
-                                            }}
-                                            transition={{
-                                                duration: 0.18,
-                                            }}
-                                            className="absolute bottom-10 left-0 z-20 w-28 rounded-xl bg-white p-2 shadow-lg ring-1 ring-black/10"
-                                        >
-                                            {difficulties.map(d => (
-                                                <li
-                                                    key={d.value}
-                                                    className={clsx(
-                                                        "cursor-pointer rounded-full py-2 text-center font-medium transition",
-                                                        difficulty ===
-                                                            d.value &&
-                                                            "bg-green-600 text-white",
-                                                    )}
-                                                    onClick={() =>
-                                                        setDifficulty(d.value)
-                                                    }
-                                                >
-                                                    {d.label}
-                                                </li>
-                                            ))}
-                                        </motion.ul>
-                                    )}
-                                </AnimatePresence>
+                                Продолжить игру
                             </button>
-                        </div>
-                    </div>
-                </div>
-                <Link to={`/game?difficulty=${difficulty}`} className="w-full">
+                        </Link>
+                        <button
+                            disabled={!canPlay}
+                            className={clsx(
+                                "h-12 w-2/3 rounded-full bg-neutral-300 px-4 text-base leading-0 font-medium transition active:border-none disabled:opacity-70",
+                                canPlay && "active:bg-neutral-400",
+                            )}
+                            onClick={() => setOpen(true)}
+                        >
+                            Новая игра
+                        </button>
+                    </>
+                ) : (
                     <button
                         disabled={!canPlay}
                         className={clsx(
-                            "h-12 w-full rounded-full bg-green-600 px-4 leading-0 font-medium text-white transition active:border-none disabled:opacity-70",
+                            "h-12 w-2/3 rounded-full bg-green-600 px-4 text-base leading-0 font-medium text-white transition active:border-none disabled:opacity-70",
                             canPlay && "active:bg-green-700",
                         )}
+                        onClick={() => setOpen(true)}
                     >
-                        Играть
+                        Новая игра
                     </button>
-                </Link>
+                )}
             </div>
+            <BottomSheet open={open} setOpen={setOpen}>
+                <div className="flex w-full flex-col items-center gap-6">
+                    <div className="flex flex-col items-center gap-1">
+                        <h2 className="text-xl font-bold">Уровень сложности</h2>
+                        <p className="text-neutral-600">
+                            Выберите сложность, чтобы начать
+                        </p>
+                    </div>
+                    <div className="flex w-full flex-col gap-2">
+                        {difficulties.map(d => (
+                            <Link
+                                key={d.value}
+                                to="/game"
+                                onClick={async () => {
+                                    if (!canPlay) return;
+                                    deleteGameSessionMutate(
+                                        gameSession?.id || "",
+                                    );
+                                    await createGameSessionMutate({
+                                        difficulty: d.value,
+                                        userId:
+                                            localStorage.getItem("userId") ||
+                                            "",
+                                    });
+                                    spentEnergyMutation.mutate(
+                                        energyCost[d.value],
+                                    );
+                                }}
+                            >
+                                <button className="h-12 w-full rounded-full bg-neutral-300 text-base font-medium transition active:bg-neutral-400">
+                                    {d.label}
+                                </button>
+                            </Link>
+                        ))}
+                    </div>
+                </div>
+            </BottomSheet>
         </>
     );
 };
