@@ -1,7 +1,7 @@
 import { API_BASE_URL } from "shared/api";
 import { authFetch } from "shared/lib";
 
-import type { GameSession } from "../model/types";
+import type { GameSession, SudokuDifficulty } from "../model/types";
 
 export const getGameSessionByUserId = async (
     userId: string,
@@ -33,7 +33,7 @@ export const createGameSession = async ({
     difficulty,
 }: {
     userId: string;
-    difficulty: string;
+    difficulty: SudokuDifficulty;
 }): Promise<GameSession> => {
     const response = await authFetch(`${API_BASE_URL}/game-session/create`, {
         method: "POST",
